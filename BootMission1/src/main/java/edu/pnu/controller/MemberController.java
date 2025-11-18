@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -49,9 +51,33 @@ public class MemberController {
 	}
 	@PutMapping("/member/{id}") // 수정(Update – 객체 교체)
 	public MemberDTO putMember(@PathVariable Integer id, MemberDTO memberDTO) {
-		for(int i = 1; i < list.size(); i++) {
-			MemberDTO
+		for(int i = 0; i < list.size(); i++) {
+			if(list.get(i).getId() == id) {
+				memberDTO.setId(id);
+				list.set(i, memberDTO);
+				return memberDTO;
+			}
+		}
+		return null;
+	}
+	@PatchMapping("/member/{id}") // 수정(Update – 일부정보수정)
+	 public MemberDTO patchMember(@PathVariable Integer id,MemberDTO memberDTO) {
+		for(MemberDTO i : list) {
+			if(i.getId().equals(id)) {
+				i.setName(memberDTO.getName());
+				i.setPass(memberDTO.getPass());
+			}
 		}
 		return memberDTO;
+	 }
+	@DeleteMapping("/member/{id}") // 삭제(Delete - delete)
+	public void deleteMember(@PathVariable Integer id) {
+		MemberDTO dto = null;
+		for(MemberDTO i : list) {
+			if(i.getId().equals(id)) {
+				dto = i;
+			}
+		}
+		list.remove(dto);
 	}
 }
