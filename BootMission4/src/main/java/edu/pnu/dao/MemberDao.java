@@ -4,10 +4,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.pnu.domain.MemberDTO;
 
@@ -27,14 +28,18 @@ public class MemberDao {
 	}
 
 	// 검색(Read - select All)
-	public List<MemberDTO> getAllMember() {
+	public Map<String, Object> getAllMember() {
 		List<MemberDTO> list = new ArrayList<>();
+		Map<String, Object> map = new HashMap<>();
 
 		String query = "select * from member";
+		map.put("sqlstring", query);
+		map.put("method", "GET");
+		
 		try {
 			stmt = con.createStatement();
 			rs = stmt.executeQuery(query);
-
+			
 			while (rs.next()) {
 				MemberDTO dto = new MemberDTO();
 				dto.setId(rs.getInt("id"));
@@ -44,37 +49,55 @@ public class MemberDao {
 
 				list.add(dto);
 			}
+			map.put("success", true);
 		} catch (Exception e) {
+			map.put("success", false);
 			e.printStackTrace();
 		}
-		return list;
+		map.put("list", list);
+		return map;
 	}
 
 	// 검색(Read – select One)
-	public MemberDTO getMemberById(Integer id) {
+	public Map<String, Object> getMemberById(Integer id) {
 		MemberDTO dto = new MemberDTO();
+		Map<String, Object> map = new HashMap<>();
+		
 		String query = "select * from member where id=?";
+		map.put("sqlstring", query);
+		map.put("method", "GET");
+		
 		try {
 			psmt = con.prepareStatement(query);
 			psmt.setInt(1, id);
 			rs = psmt.executeQuery();
 
-			while (rs.next()) {
+			if (rs.next()) {
 				dto.setId(rs.getInt("id"));
 				dto.setPass(rs.getString("pass"));
 				dto.setName(rs.getString("name"));
 				dto.setRegidate(rs.getDate("regidate"));
+				map.put("success", true);
+			} else {
+				map.put("success", false);
 			}
 		} catch (Exception e) {
+			map.put("success", false);
 			e.printStackTrace();
-		} 
-		return dto;
+		}
+		map.put("dto", dto);
+		return map;
 	}
 
 	// 입력(Create - insert)
-	public MemberDTO postMember(MemberDTO memberDTO) {
+	public Map<String, Object> postMember(MemberDTO memberDTO) {
 		MemberDTO dto = null;
+		Map<String, Object> map = new HashMap<>();
+		
 		String query = "insert into member(pass, name) values (?, ?)";
+		map.put("sqlstring", query);
+		map.put("method", "POST");
+		
 		try {
 			psmt = con.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
 			psmt.setString(1, memberDTO.getPass());
@@ -82,21 +105,38 @@ public class MemberDao {
 
 			if (psmt.executeUpdate() == 1) {
 				rs = psmt.getGeneratedKeys();
+				
 				if (rs.next()) {
 					int id = rs.getInt(1);
-					dto = getMemberById(id);
+					Map<String, Object> rmap = getMemberById(id);
+					dto = (MemberDTO) rmap.get("dto");
+					
+					if (dto != null) {
+	                    map.put("success", true);
+	                } else {
+	                    map.put("success", false);
+	                }
+				} else {
+					map.put("success", false);
 				}
 			}
 		} catch (Exception e) {
+			map.put("success", false);
 			e.printStackTrace();
 		}
-		return dto;
+		map.put("dto", dto);
+		return map;
 	}
 
 	// 수정(Update – 객체 교체)
-	public MemberDTO putMember(Integer id, MemberDTO memberDTO) {
+	public Map<String, Object> putMember(Integer id, MemberDTO memberDTO) {
 		MemberDTO dto = null;
+		Map<String, Object> map = new HashMap<>();
+		
 		String query = "update member set pass=?, name=? where id=?";
+		map.put("sqlstring", query);
+		map.put("method", "PUT");
+		
 		try {
 			psmt = con.prepareStatement(query);
 			psmt.setString(1, memberDTO.getPass());
@@ -104,19 +144,34 @@ public class MemberDao {
 			psmt.setInt(3, id);
 
 			if (psmt.executeUpdate() == 1) {
-				dto = getMemberById(id);
+				Map<String, Object> rmap = getMemberById(id);
+				dto = (MemberDTO) rmap.get("dto");
+				
+				if (dto != null) {
+                    map.put("success", true);
+                } else {
+                    map.put("success", false);
+                }
+			} else {
+				map.put("success", false);
 			}
 		} catch (Exception e) {
+			map.put("success", false);
 			e.printStackTrace();
 		}
-		return dto;
+		map.put("dto", dto);
+		return map;
 	}
 
 	// 수정(Update – 일부정보수정)
-	public MemberDTO patchMember(Integer id, MemberDTO memberDTO) {
-		MemberDTO dto = getMemberById(id);
+	public Map<String, Object> patchMember(Integer id, MemberDTO memberDTO) {
+		MemberDTO dto = null;
+	    Map<String, Object> map = new HashMap<>();
 
 		String query = "update member set pass=ifnull(?, pass), name=ifnull(?, name) where id=?";
+		map.put("sqlstring", query);
+		map.put("method", "PATCH");
+		
 		try {
 			psmt = con.prepareStatement(query);
 			psmt.setString(1, memberDTO.getPass());
@@ -124,23 +179,43 @@ public class MemberDao {
 			psmt.setInt(3, id);
 
 			if (psmt.executeUpdate() == 1) {
-				dto = getMemberById(id);
+				Map<String, Object> rmap = getMemberById(id);
+				dto = (MemberDTO) rmap.get("dto");
+				
+				if (dto != null) {
+                    map.put("success", true);
+                } else {
+                    map.put("success", false);
+                }
+			} else {
+				map.put("success", false);
 			}
 		} catch (Exception e) {
+			map.put("success", false);
 			e.printStackTrace();
 		}
-		return dto;
+		map.put("dto", dto);
+		return map;
 	}
 
-	public void deleteMember(Integer id) {
+	public Map<String, Object> deleteMember(Integer id) {
+		Map<String, Object> map = new HashMap<>();
+		
 		String query = "delete from member where id=?";
+		map.put("sqlstring", query);
+		map.put("method", "DELETE");
+		
 		try {
 			psmt = con.prepareStatement(query);
 			psmt.setInt(1, id);
 			psmt.executeUpdate();
-		} catch (Exception e) {
+			map.put("success", true);
+		} 
+		catch (Exception e) {
+			map.put("success", false);
 			e.printStackTrace();
 		}
+		return map;
 	}
 
 }
