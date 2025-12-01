@@ -24,6 +24,7 @@ public class QueryMethodTest {
 	@Autowired
 	private BoardRepository boardRepo;
 	
+	/*
 	@BeforeAll
 	static void dataPrepare(@Autowired BoardRepository boardRepo) {
 		System.out.println("dataPrepare()");
@@ -90,4 +91,5 @@ public class QueryMethodTest {
 			System.out.println("---> " + board.toString());
 		}
 	}
+	*/
 }

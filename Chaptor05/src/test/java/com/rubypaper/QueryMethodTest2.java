@@ -21,6 +21,7 @@ public class QueryMethodTest2 {
 	@Autowired
 	private BoardRepository boardRepo;
 	
+	/*
 	@BeforeAll
 	static void dataPrepare(@Autowired BoardRepository boardRepo) {
 		Random rnd = new Random();
@@ -71,4 +72,5 @@ public class QueryMethodTest2 {
 			System.out.println("---> " + board.toString());
 		}
 	}
+	*/
 }
