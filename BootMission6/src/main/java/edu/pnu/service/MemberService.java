@@ -5,30 +5,43 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import edu.pnu.dao.MemberDao;
-import edu.pnu.domain.MemberDTO;
+import edu.pnu.domain.Member;
+import edu.pnu.persistence.MemberRepository;
 
 @Service
 public class MemberService {
 	@Autowired
-	private MemberDao memberDao;
+	private MemberRepository memberRepo;
 	
-	public List<MemberDTO> getAllMember() {
-		return memberDao.getAllMember();
+	public List<Member> getAllMember() {
+		List<Member> list = memberRepo.findAll();
+		for(Member m : list) {
+			System.out.println(m);
+		}
+		return list;
 	}
-	public MemberDTO getMemberById(Integer id) {
-		return memberDao.getMemberById(id);
+	public Member getMemberById(Integer id) {
+		return memberRepo.findById(id).get();
 	}
-	public MemberDTO postMember(MemberDTO memberDTO) {
-		return memberDao.postMember(memberDTO);
+	public Member postMember(Member member) {
+		return memberRepo.save(member);
 	}
-	public MemberDTO putMember(Integer id, MemberDTO memberDTO) {
-		return memberDao.putMember(id, memberDTO);
+	public Member putMember(Integer id, Member member) {
+		member.setId(id);
+		return memberRepo.save(member);
 	}
-	 public MemberDTO patchMember(Integer id, MemberDTO memberDTO) {	
-		 return memberDao.patchMember(id, memberDTO);
+	 public Member patchMember(Integer id, Member member) {	
+		 Member m = memberRepo.findById(id).get();
+		 
+		 if(member.getPass() != null) {
+			 m.setPass(member.getPass());
+		 }
+		 if(member.getName() != null) {
+			 m.setName(member.getName());
+		 }
+		 return memberRepo.save(m);
 	 }
 	public void deleteMember(Integer id) {
-		memberDao.deleteMember(id);
+		memberRepo.deleteById(id);
 	}
 }
