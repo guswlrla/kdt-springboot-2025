@@ -1,5 +1,6 @@
 package edu.pnu.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +25,16 @@ public class MemberService {
 		return memberRepo.findById(id).get();
 	}
 	public Member postMember(Member member) {
+		if(member.getRegidate() == null) {
+	        member.setRegidate(new Date());
+	    }
 		return memberRepo.save(member);
 	}
 	public Member putMember(Integer id, Member member) {
+		Member m = memberRepo.findById(id).get();
+		if(member.getRegidate() == null) {
+	        member.setRegidate(m.getRegidate());
+	    }
 		member.setId(id);
 		return memberRepo.save(member);
 	}
