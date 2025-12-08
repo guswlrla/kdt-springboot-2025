@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rubypaper.domain.BoardVO;
 
-@RestController // 사용자가 호출하는 url을 처리하는 핸들러 클래스(@Controller)
+@RestController
 public class BoardController {
 	public BoardController() {
 		System.out.println("===> BoardController생성");
@@ -20,7 +20,8 @@ public class BoardController {
 		return "Hello : " + name;
 	}
 	
-	@GetMapping("/getBoard") // @RestContorller는 리턴되는 데이터가 VO 또는 컬렉션이면 자동으로 JSON으로 변환
+	// VO 객체를 리턴하는 경우
+	@GetMapping("/getBoard")
 	public BoardVO getBoard() {
 		BoardVO board = new BoardVO();
 		board.setSeq(1);
@@ -32,6 +33,7 @@ public class BoardController {
 		return board;
 	}
 	
+	// 컬렉션을 리턴하는 경우
 	@GetMapping("/getBoardList")
 	public List<BoardVO> getBoardList() {
 		List<BoardVO> boardList = new ArrayList<>();
