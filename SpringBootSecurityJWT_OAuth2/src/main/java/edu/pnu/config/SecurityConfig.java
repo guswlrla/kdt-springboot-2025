@@ -2,6 +2,7 @@ package edu.pnu.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -10,6 +11,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import edu.pnu.config.filter.JWTAuthenticationFilter;
 import edu.pnu.config.filter.JWTAuthorizationFilter;
@@ -30,8 +34,10 @@ public class SecurityConfig {
 	PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+	
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http.cors(cors->cors.configurationSource(corsSource()));
 		http.csrf(csrf->csrf.disable());
 		http.authorizeHttpRequests(auth->auth.requestMatchers("/member/**").authenticated()
 											.requestMatchers("/manager/**").hasAnyRole("MANAGER", "ADMIN")
@@ -51,7 +57,15 @@ public class SecurityConfig {
 		return http.build();
 	}
 	
-
-	
-	
+	private CorsConfigurationSource corsSource() {
+		CorsConfiguration config = new CorsConfiguration();
+		config.addAllowedOrigin("http://localhost:3000"); // 요청을 허용할 서버
+		config.addAllowedMethod(CorsConfiguration.ALL); // 요청을 허용할 Method
+		config.addAllowedHeader(CorsConfiguration.ALL); // 요청을 허용할 Header
+		config.setAllowCredentials(true); // 요청/응답에 자격증명정보/쿠키 포함을 허용 여부
+		config.addExposedHeader(HttpHeaders.AUTHORIZATION); // 응답 Header에 Authorization 추가
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", config); // 위 설정을 적용할 Rest 서버의 URL 패턴 설정
+		return source;
+	}
 }
